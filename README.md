@@ -92,7 +92,7 @@ Orders MongoDB database setup code:
 * As administer user, I can check and change ingredients storage information.
 
 ### Research Topics
-(5 points) Integrate user authentication
+(6 points) Integrate user authentication
   * Potential modules: passport for user authentication
   * This is required for the application to determine whether the user exists and the corresponding user type.
   * See `/index` for both register and login page.
