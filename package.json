@@ -1,0 +1,30 @@
+{
+  "name": "evening-stream-66578",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://git.heroku.com/evening-stream-66578.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "connect-flash": "^0.1.1",
+    "express": "^4.16.4",
+    "express-session": "^1.15.6",
+    "handlebars": "^4.0.12",
+    "hbs": "^4.0.1",
+    "mongoose": "^5.3.12",
+    "passport": "^0.4.0",
+    "passport-local": "^1.0.0",
+    "passport-local-mongoose": "^5.0.1",
+    "path": "^0.12.7",
+    "request": "^2.88.0"
+  }
+}

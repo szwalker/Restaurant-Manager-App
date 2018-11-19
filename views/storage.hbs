@@ -1,0 +1,36 @@
+<div class="low_storage_warning"><h2>Ingredients below 10 units</h2></div>
+<table style="width:100%">
+    <tr>
+        <th>Ingredients</th>
+        <th>Storage</th>
+    </tr>
+    {{#each low_storage as |l|}}
+        <tr>
+            <td>{{l.ingredient_name}}</td>
+            <td>{{l.current_storage}}</td>
+        </tr>
+    {{/each}}
+</table>
+
+<h2>Storage status for each ingredients</h2>
+<table style="width:100%">
+    <tr>
+        <th>Ingredients</th>
+        <th>Storage</th>
+    </tr>
+    {{#each ings as |i|}}
+        <tr>
+            <td>{{i.ingredient_name}}</td>
+            <td>{{i.current_storage}}</td>
+        </tr>
+    {{/each}}
+</table>
+
+<h2>Add / Update ingredients</h2>
+<form method="POST" action="/storage">
+    <h3>Name of ingredient:<input name="ingredient_name" type="text"> <br>
+    Updated amount of ingredient: <input name="current_storage" type="text"> </h3>
+    <div class="middlebutton">
+      <button type="submit"><h2>SUBMIT</h2></button>
+    </div>
+</form>

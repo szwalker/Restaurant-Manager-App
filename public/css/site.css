@@ -1,0 +1,61 @@
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+th, td {
+    padding: 8px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+tr:hover {background-color:#f5f5f5;}
+
+div.middlebutton {
+    text-align: center;
+}
+
+div.low_storage_warning{
+    font-weight: bold;
+    color: red;
+}
+
+
+div.register {
+    position: absolute;
+    top: 300px;
+    left: 600px;
+    width: 280px;
+    border: 2px solid burlywood;
+    border-radius: 8px;
+    padding: 15px;
+    background: lightgreen;
+    background-clip: padding-box;
+    text-align: center;
+
+}
+
+div.login {
+    position: absolute;
+    top: 300px;
+    left: 200px;
+    width: 280px;
+    border: 2px solid burlywood;
+    border-radius: 8px;
+    padding: 15px;
+    background: lightpink;
+    background-clip: padding-box;
+    text-align: center;
+
+}
+
+div.restaurant_sign{
+    position: absolute;
+    top: 50px;
+    left: 300px;
+    width: 600px;
+    background: cornsilk;
+    text-align: center;
+
+
+}

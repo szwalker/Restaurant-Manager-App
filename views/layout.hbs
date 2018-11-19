@@ -1,0 +1,22 @@
+<!doctype html>
+<html>
+<head>
+    <header>
+        {{#if user}}
+            <div class="greeting_user">Hello {{user.username}}</div>
+            {{#if display_admin_links}}
+                <a href="/storage">Manage Ingredient Storage</a>
+            {{/if}}
+        {{/if}}
+        {{#unless user}}
+            You are not logged in yet.
+        {{/unless}}
+    </header>
+    <meta charset="utf-8">
+    <title></title>
+    <link rel="stylesheet" href="/css/site.css" type="text/css" media="screen" title="no title" charset="utf-8">
+</head>
+<body>
+{{{body}}}
+</body>
+</html>
