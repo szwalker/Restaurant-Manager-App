@@ -11,9 +11,9 @@ const User = new mongoose.Schema({
 
 const Cuisine = new mongoose.Schema({
     cuisine: String, // name of the cuisine
-    cuisine_id: Number, // id of the cuisine
+    cuisine_id: String, // id of the cuisine
     price: Number, // price of this cuisine
-    ingredients: [], // an array of ingredients names required for this cuisine
+    ingredients: String, // an JSON stringified array of ingredients names required for this cuisine
     calories: Number, // calories of the cuisine
     total_orders: Number, // total order numbers of this cuisine
 });
@@ -26,7 +26,7 @@ const Ingredient = new mongoose.Schema({
 const Order = new mongoose.Schema({
     username: String,// consumer's username
     order_id: Number, // order id number
-    order_details: [], // an array of references to cuisines ids
+    order_details: String, // an JSON stringified array of cuisines ids
     status: String, // a string of order status
     total_price: Number, // total price of this order
 });

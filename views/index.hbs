@@ -4,17 +4,48 @@
 <div class="register">
     <h3>New to here? Please register.</h3>
     <form method="POST" action="/register">
-        Username: <input type="text" name="username"> <br>
-        Password: <input type="text" name="password"> <br>
-        <button type="submit"><h3>REGISTER</h3></button>
+        {{#if register_error}}
+            {{#each msg as |m|}}
+                <div class="error_msg">ERROR: {{m}}</div>
+            {{/each}}
+        {{/if}}
+        Username: <input type="text" name="username" placeholder="username"> <br>
+        Password: <input type="password" name="password" placeholder="password"> <br>
+        <button class="graybutton" type="submit"><h3>REGISTER</h3></button>
     </form>
 </div>
 
 <div class="login">
     <h3>Ready to Order? Login and order.</h3>
     <form method="POST" action="/login">
-        Username: <input type="text" name="username"> <br>
-        Password: <input type="text" name="password"> <br>
-        <button type="submit"><h3>LOGIN</h3></button>
+        {{#if login_error}}
+            {{#each msg as |m|}}
+                <div class="error_msg">ERROR: {{m}}</div>
+            {{/each}}
+        {{/if}}
+        Username: <input type="text" name="username" placeholder="username"> <br>
+        Password: <input type="password" name="password" placeholder="password"> <br>
+        <button class="graybutton" type="submit"><h3>LOGIN</h3></button>
     </form>
+</div>
+
+<div class="index_menu">
+    <div class="index_menu_title"><h2>MENU</h2></div>
+
+    <table style="width:100%">
+    <tr>
+        <th><h4>Cuisine ID</h4></th>
+        <th><h4>Cuisine Name</h4></th>
+        <th><h4>Calories</h4></th>
+        <th><h4>Price($)</h4></th>
+    </tr>
+    {{#each menu as |m|}}
+        <tr>
+            <td><h4>{{m.cuisine_id}}</h4></td>
+            <td><h4>{{m.cuisine}}</h4></td>
+            <td><h4>{{m.calories}}</h4></td>
+            <td><h4>{{m.price}}</h4></td>
+        </tr>
+    {{/each}}
+</table>
 </div>

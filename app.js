@@ -31,7 +31,24 @@ app.use(session({
     saveUninitialized: true,
 }));
 
-
+// A HOF that takes in a cuisine object and returns a set property function that allows to
+// modify its property with respect to its schema. The set property function takes in two parameters:
+// 1. property to be modified, and 2. new value for the cuisine.
+// Modifying the cuisine and cuisine id is not allowed.
+function updateCuisine(cuisine){
+    const c = cuisine;
+    return function setProperty(property,new_value){
+        if(c[property]===undefined || property==='cuisine' || property==='cuisine_id'){
+            console.log('error setting the property',property,'to cuisine.');
+        }
+        else if (property==='ingredients'){
+            c.ingredients = JSON.stringify(new_value)
+        }
+        else{
+            c[property] = new_value;
+        }
+    }
+}
 
 // Authentication using Passport Library, Research Reference:
 // https://github.com/passport/express-4.x-local-example/blob/master/server.js
@@ -60,6 +77,9 @@ passport.use('login', new Strategy({passReqToCallback: true}, (req, username, pa
 ));
 
 passport.use('register', new Strategy({passReqToCallback: true}, (req, username, password, cb) => {
+        if(password.length < 4){
+            return cb(null,false,{message:'Your password have a minimum length of 4 characters!'});
+        }
         User.findOne({username: username}, (err, user, count) => {
             if (err) {
                 cb(err);
@@ -81,7 +101,6 @@ passport.use('register', new Strategy({passReqToCallback: true}, (req, username,
                             console.log('error storing user!');
                         }
                         else{
-                            console.log('registration success');
                             req.session.user = user;
                             return cb(null,user);
                         }
@@ -110,7 +129,7 @@ app.use(passport.session());
 
 app.use((req,res,next)=>{
     res.locals.user = req.session.user;
-    console.log(res.locals);
+    // console.log(res.locals);
     next();
 });
 
@@ -126,7 +145,33 @@ app.get('/index',(req,res)=>{
     else if(res.locals.user.user_type==='admin'){
         display_admin_links = true;
     }
-   res.render('index',{user:res.locals.user,display_admin_links:display_admin_links});
+    let register_error = false;
+    let login_error = false;
+    const flash_msg = req.flash('error').slice();
+    if(flash_msg.length!==0){
+        if(flash_msg[0] ==='Username already exist!'||flash_msg[0]==='Your password must have a minimum length of 4 characters!'){
+            register_error = true;
+        }
+        else{
+            login_error = true;
+        }
+    }
+    Cuisine.find({},(err,cuisine_lst,count)=>{
+        if(err){
+            console.log(err);
+        }
+        else{
+            res.render('index',{
+                user:res.locals.user,
+                display_admin_links:display_admin_links,
+                msg:flash_msg,
+                login_error:login_error,
+                register_error:register_error,
+                menu:cuisine_lst,
+            });
+        }
+    });
+   // res.render('index',{user:res.locals.user,display_admin_links:display_admin_links,msg:flash_msg,login_error:login_error,register_error:register_error});
 });
 
 app.get('/excited',(req,res)=>{
@@ -153,61 +198,197 @@ app.get('/storage',(req,res)=>{
         res.redirect('/index');
     }
     else{
+        const display_admin_links = true;
         Ingredient.find({},(err,ings,count)=>{
             if(err){
                 console.log('database error, cannot find ingredients');
                 res.status(500);
             }
             else{
-                // console.log(ings);
                 const low_storage = ings.filter(ing=>ing.current_storage<10);
-                res.render('storage',{ings:ings,low_storage:low_storage}); // an array of ingredient obj
+                res.render('storage',{ings:ings,low_storage:low_storage,display_admin_links:display_admin_links}); // an array of ingredient obj
             }
         });
     }
 });
 
 app.post('/storage',(req,res)=>{
-    if(!res.locals[user]){
-        res.redirect('/index');
-    }
+     const ingredient_name = req.body.ingredient_name;
+     const new_storage = parseInt(req.body.current_storage);
+     Ingredient.findOne({ingredient_name:ingredient_name},(err,ing,count)=>{
+         if(err){
+             console.log('findOne Error in /storage.');
+         }
+         // ingredient not found, must be a type of new ingredient
+         else if (!ing){
+             new Ingredient({
+                 ingredient_name : ingredient_name,
+                 current_storage : new_storage,
+             }).save((err,new_ing,count)=>{
+                 if(err){
+                     console.log('Ingredient Storing Error!');
+                 }
+                 else{
+                     res.redirect('/storage');
+                 }
+             });
+         }
+         // ingredient has been found, update the storage amount
+         else{
+             ing.current_storage = new_storage;
+             ing.save((err,u,c)=>{
+                 if(err){
+                     console.log('update existing document error');
+                 }
+                 else{
+                     res.redirect('/storage');
+                 }
+             });
+         }
+     });
+});
 
-    else if(res.locals[user][user_type]!=='admin'){
+app.get('/update_menu',(req,res)=>{
+    if(res.locals.user===undefined){
         res.redirect('/index');
     }
-    // valid user
+    else if(res.locals.user.user_type!=='admin'){
+        res.redirect('/index');
+    }
     else{
-        const ingredient_name = req.body.ingredient_name;
-        const new_storage = parseInt(req.body.current_storage);
-        Ingredient.findOne({ingredient_name:ingredient_name},(err,ing,count)=>{
+        Cuisine.find({},(err,cuisine_lst,count)=>{
             if(err){
-                console.log('findOne Error in /storage.');
+                console.log(err);
             }
-            // ingredient not found, must be a type of new ingredient
-            else if (!ing){
-                new Ingredient({
-                    ingredient_name : ingredient_name,
-                    current_storage : new_storage,
-                }).save((err,new_ing,count)=>{
-                    if(err){
-                        console.log('Ingredient Storing Error!');
-                    }
-                    else{
-                        res.redirect('/storage');
-                    }
-                });
-            }
-            // ingredient has been found, update the storage amount
             else{
-                ing.current_storage = new_storage;
-                ing.save((err,u,c)=>{
+                res.render('update_menu',{
+                    display_admin_links:true,
+                    update_err:req.flash('update_err')[0],
+                    update_suc:req.flash('update_suc')[0],
+                    menu:cuisine_lst,
+                });
+            }
+        })
+    }
+});
+
+app.post('/update_menu',(req,res)=>{
+    // not a valid input
+    if (req.body.mode!=='remove' && req.body.mode!=='update'){
+        req.flash('update_err','ERROR: Please specify the update mode.');
+        res.redirect('/update_menu');
+    }
+    // remove
+    else if(req.body.mode==='remove') {
+        if (req.body.cuisine === '' && req.body.cuisine_id === '') {
+            req.flash('update_err', 'ERROR: Please enter cuisine name or cuisine id.');
+            res.redirect('/update_menu');
+        }
+        else if (req.body.cuisine === '') {
+            Cuisine.find({cuisine_id: req.body.cuisine_id}, (err, cuisine, count) => {
+                if (err) {
+                    console.log(err);
+                }
+                else {
+                    let counter = 0;
+                    cuisine.forEach(elem => ++counter);
+                    if (counter === 0) {
+                        req.flash('update_err', 'ERROR: Cannot find the target cuisine.');
+                        res.redirect('/update_menu');
+                    }
+                    else if (counter === 1) {
+                        Cuisine.deleteOne({cuisine_id: req.body.cuisine_id}, (err) => {
+                            if (err) {
+                                req.flash('update_err', err);
+                                res.redirect('/update_menu');
+                            }
+                            else {
+                                req.flash('update_suc', 'Deletion success.');
+                                res.redirect('/update_menu');
+                            }
+                        })
+                    }
+                }
+            });
+        }
+        else {
+            Cuisine.find({cuisine: req.body.cuisine}, (err, cuisine, count) => {
+                if (err) {
+                    console.log(err);
+                }
+                else {
+                    let counter = 0;
+                    cuisine.forEach(e => ++counter);
+                    if (counter === 0) {
+                        req.flash('update_err', 'ERROR: Cannot find the target cuisine');
+                        res.redirect('/update_menu');
+                    }
+                    else if (counter === 1) {
+                        Cuisine.deleteOne({cuisine: req.body.cuisine}, (err) => {
+                            if (err) {
+                                req.flash('update_err', 'ERROR: unable to convert to the data type as specified in schema');
+                                res.redirect('/update_menu');
+                            }
+                            else {
+                                req.flash('update_suc', 'Deletion success.');
+                                res.redirect('/update_menu');
+                            }
+                        });
+                    }
+                }
+            });
+        }
+    }
+    // update
+    else{
+        Cuisine.find({
+            cuisine:req.body.cuisine,
+            cuisine_id:req.body.cuisine_id,
+        },(err,cuisine,count)=>{
+            let c = 0; // counter
+            cuisine.forEach(e=>++c);
+            // the target cuisine does not exist
+            if(c===0){
+                // create a new cuisine
+                new Cuisine({
+                    cuisine:req.body.cuisine,
+                    cuisine_id:req.body.cuisine_id,
+                    price:req.body.price,
+                    ingredients:JSON.stringify(req.body.ingredients.split(' ')),
+                    calories:req.body.calories,
+                    total_orders:0,
+                }).save((err,cuisine,count)=>{
                     if(err){
-                        console.log('update existing document error');
+                        req.flash('update_err',err);
+                        res.redirect('/update_menu');
                     }
                     else{
-                        res.redirect('/storage');
+                        req.flash('update_suc', 'New cuisine has been created.');
+                        res.redirect('/update_menu');
                     }
                 });
+            }
+            // target cuisine exists, update the info
+            else if(c===1){
+                console.log(cuisine);
+                const cuisine_modifier = updateCuisine(cuisine[0]);
+                cuisine_modifier('price',parseInt(req.body.price));
+                cuisine_modifier('ingredients',req.body.ingredients.split(' '));
+                cuisine_modifier('calories',req.body.calories);
+                cuisine[0].save((err,cui,count)=>{
+                    if(err){
+                        req.flash('update_err',err);
+                        res.redirect('/update_menu');
+                    }
+                    else{
+                        req.flash('update_suc', 'Update success.');
+                        res.redirect('/update_menu');
+                    }
+                });
+            }
+            else{
+                req.flash('update_err','failed to identify the cuisine');
+                res.redirect('/update_menu');
             }
         });
     }

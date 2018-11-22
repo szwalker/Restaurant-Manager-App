@@ -1,0 +1,43 @@
+<h1>Edit Menu</h1>
+<p>If your edit mode is <i>remove</i>, then only cuisine name or cuisine id is necessary. Otherwise, please enter
+<i>all</i> fields.<br>
+A new cuisine type will be created if the name does not match to any existing cuisines on the menu.</p>
+<form method="POST" action="/update_menu">
+    <div class="update_err">
+        {{#if update_err}}
+            <h2>{{update_err}}</h2> <br>
+        {{/if}}
+    </div>
+    <div class="update_suc">
+        {{#if update_suc}}
+            <h4>{{update_suc}}</h4> <br>
+        {{/if}}
+    </div>
+    Mode (update, remove): <input name="mode" type="text"> <br>
+    Cuisine Name: <input name="cuisine" type="text"> <br>
+    Cuisine ID: <input name="cuisine_id" type="text"> <br>
+    Updated Price: <input name="price" type="text"> <br>
+    Calories: <input name="calories" type="text"> <br>
+    Ingredients (separate by space): <input name="ingredients" type="text"> <br>
+    <div class="middlebutton">
+        <button class="bluebutton" type="submit"><h2>SUBMIT</h2></button>
+    </div>
+</form>
+
+<div class="menu"><h2>MENU</h2></div>
+<table style="width:100%">
+        <tr>
+            <th><h4>Cuisine ID</h4></th>
+            <th><h4>Cuisine Name</h4></th>
+            <th><h4>Calories</h4></th>
+            <th><h4>Price($)</h4></th>
+        </tr>
+    {{#each menu as |m|}}
+            <tr>
+                <td><h4>{{m.cuisine_id}}</h4></td>
+                <td><h4>{{m.cuisine}}</h4></td>
+                <td><h4>{{m.calories}}</h4></td>
+                <td><h4>{{m.price}}</h4></td>
+            </tr>
+    {{/each}}
+</table>

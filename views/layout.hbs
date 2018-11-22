@@ -5,7 +5,8 @@
         {{#if user}}
             <div class="greeting_user">Hello {{user.username}}</div>
             {{#if display_admin_links}}
-                <a href="/storage">Manage Ingredient Storage</a>
+                <a href="/storage">Manage Ingredient Storage</a> |
+                <a href="/update_menu"> Update Menu</a> |
             {{/if}}
         {{/if}}
         {{#unless user}}

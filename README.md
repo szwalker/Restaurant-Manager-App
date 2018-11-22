@@ -92,11 +92,25 @@ Orders MongoDB database setup code:
 * As administer user, I can check and change ingredients storage information.
 
 ### Research Topics
-(6 points) Integrate user authentication
+(6 points) Integrate user authentication Using passport
   * Potential modules: passport for user authentication
   * This is required for the application to determine whether the user exists and the corresponding user type.
   * See `/index` for both register and login page.
 
-(2 points) Animation interaction
-  * Potential modules: Sassm, Less, Myth, jQuery
+(1 point) Flash Library
+  * Display feedback back to the user during remove cuisine from menu, deleting accounts, register, login.
+  * see `/index`, `/update_menu`, `/manage_users` pages for detail.
+
+(1 point) JQuery Library
+  * Perform animation effect on user validation
   * Using a CSS preprocesser would give the user a better interactive feeling from the application.
+  * See `/index` for both register and login button.
+
+### References
+  * [Express 4.x app using Passport for authentication with username and password](https://github.com/passport/express-4.x-local-example/blob/master/server.js)
+  * [Passport-Local Mongoose](https://github.com/saintedlama/passport-local-mongoose)
+  * [Some quick tips for Passport]( https://www.raymondcamden.com/2016/06/23/some-quick-tips-for-passport)
+  * [Learn how to handle authentication with Node using Passport.js](https://medium.freecodecamp.org/learn-how-to-handle-authentication-with-node-using-passport-js-4a56ed18e81e)
+  * [Easy Node Authentication: Setup and Local](https://scotch.io/tutorials/easy-node-authentication-setup-and-local)
+  * [Flash API from NPM](https://www.npmjs.com/package/flash)
+  * [JQuery Tutorial from w3schools](https://www.w3schools.com/jquery/)
