@@ -1,0 +1,41 @@
+<h2>Current waiting queue</h2>
+<p>(orders are in a first in first out order)</p>
+
+<div class="update_err">
+{{#if process_err}}
+    <h2>{{process_err}}</h2>
+{{/if}}
+</div>
+<div class="update_suc">
+{{#if process_suc}}
+    <h2>{{process_suc}}</h2>
+{{/if}}
+</div>
+
+<table style="width:100%">
+    <tr>
+        <th>Username</th>
+        <th>Order ID</th>
+        <th>Order Details</th>
+        <th>Status</th>
+        <th>Total Price($)</th>
+    </tr>
+    {{#each orders as |o|}}
+        <tr>
+            <td>{{o.username}}</td>
+            <td>{{o._id}}</td>
+            <td>{{o.order_details}}</td>
+            <td>{{o.status}}</td>
+            <td>{{o.total_price}}</td>
+        </tr>
+    {{/each}}
+</table>
+<br>
+<div class="process_order_instruction">
+    <form method="POST" action="/process_order">
+        <button name="submit" class="greenbutton"><h3>DONE</h3></button>
+    </form>
+    <p>Done preparing for the first order?</p>
+    <p>Press <b>done</b> to remove the order at the front of the waiting queue.</p>
+    <p>Please refresh to see the latest waiting queue.</p>
+</div>

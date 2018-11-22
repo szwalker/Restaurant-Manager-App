@@ -25,7 +25,6 @@ const Ingredient = new mongoose.Schema({
 
 const Order = new mongoose.Schema({
     username: String,// consumer's username
-    order_id: Number, // order id number
     order_details: String, // an JSON stringified array of cuisines ids
     status: String, // a string of order status
     total_price: Number, // total price of this order

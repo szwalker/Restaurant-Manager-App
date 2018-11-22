@@ -10,7 +10,6 @@ const Strategy = require('passport-local').Strategy;
 const flash = require('connect-flash');
 app.use(flash());
 cachified_price = {}; // a global cache for price lookup
-order_id = 0; // a global order id
 // // const async = require('async');
 const mongoose = require('mongoose');
 const User = mongoose.model('User');
@@ -457,16 +456,13 @@ app.post('/order',(req,res)=>{
                 total_price += cachified_price[e];
             }
         });
-        console.log('valid:',valid_input);
         // order success
         if(valid_input){
             const push_new_order_history = userOrderUpdate(cur_user);
             push_new_order_history(req.body.order_detail);
             // generate order
-            ++order_id;
             new Order({
                 username: res.locals.user.username,
-                order_id: order_id,
                 order_details:req.body.order_detail,
                 status:'not ready',
                 total_price: total_price,
@@ -508,9 +504,35 @@ app.get('/process_order',(req,res)=>{
             res.render('process_order', {
                 user: res.locals.user,
                 orders: order_lst,
+                display_admin_links:true,
+                process_err:req.flash('process_err')[0],
+                process_suc:req.flash('process_suc')[0],
             });
         });
     }
+});
+
+
+app.post('/process_order',(req,res)=>{
+    Order.find({},(err,o_lst,count)=>{
+        if(o_lst.length===0){
+            req.flash("process_err","Queue is empty!");
+            res.redirect('/process_order');
+        }
+        else{
+            const cur_o = o_lst[0];
+            Order.deleteOne(cur_o,(err)=>{
+                if(err){
+                    req.flash('process_err',err);
+                    res.redirect('/process_order');
+                }
+                else{
+                    req.flash('process_suc','The order at the top of queue has been processed.');
+                    res.redirect('/process_order');
+                }
+            });
+        }
+    });
 });
 
 const PORT = process.env.PORT || 5000;

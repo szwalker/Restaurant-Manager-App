@@ -107,3 +107,7 @@ div.menu{
     background-color: #4CAF50;
     color: whitesmoke;
 }
+
+div.process_order_instruction{
+    text-align:center;
+}
