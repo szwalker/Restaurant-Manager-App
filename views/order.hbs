@@ -1,9 +1,13 @@
 Please enter the corresponding cuisine id of the food (separate by a space) <br>
 {{#if order_err}}
+    <div class="error_msg">
     <h2>{{order_err}}</h2> <br>
+    </div>
 {{/if}}
 {{#if order_suc}}
+    <div class="success_msg">
     <h2>{{order_suc}}</h2> <br>
+    </div>
 {{/if}}
 <form method="POST" action="/order">
     <textarea rows="4" cols="50" name="order_detail"></textarea>

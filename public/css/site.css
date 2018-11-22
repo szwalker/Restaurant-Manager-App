@@ -73,6 +73,11 @@ div.error_msg{
     color: red;
 }
 
+div.success_msg{
+    font-weight: 300;
+    color: forestgreen;
+}
+
 div.update_err{
     color: deeppink;
     font-weight: 700;

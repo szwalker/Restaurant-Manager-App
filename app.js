@@ -9,13 +9,21 @@ const passport = require('passport');
 const Strategy = require('passport-local').Strategy;
 const flash = require('connect-flash');
 app.use(flash());
-Q = []; // a global Queue for orders
+cachified_price = {}; // a global cache for price lookup
+order_id = 0; // a global order id
 // // const async = require('async');
 const mongoose = require('mongoose');
 const User = mongoose.model('User');
 const Cuisine = mongoose.model('Cuisine');
 const Ingredient = mongoose.model('Ingredient');
+const Order = mongoose.model('Order');
 const bodyParser = require('body-parser');
+// initialize price cache
+Cuisine.find({},(err,c_lst,count)=>{
+    c_lst.forEach(e=>{
+        cachified_price[e.cuisine_id] = e.price;
+    })
+});
 app.use(bodyParser.urlencoded({extended: false}));
 // // default path
 const path = require("path");
@@ -140,6 +148,7 @@ app.use(passport.session());
 app.use((req,res,next)=>{
     res.locals.user = req.session.user;
     // console.log(res.locals);
+    // console.log(cachified_price);
     next();
 });
 
@@ -313,6 +322,7 @@ app.post('/update_menu',(req,res)=>{
                                 res.redirect('/update_menu');
                             }
                             else {
+                                delete cachified_price[req.body.cuisine_id];
                                 req.flash('update_suc', 'Deletion success.');
                                 res.redirect('/update_menu');
                             }
@@ -340,6 +350,7 @@ app.post('/update_menu',(req,res)=>{
                                 res.redirect('/update_menu');
                             }
                             else {
+                                delete cachified_price[req.body.cuisine];
                                 req.flash('update_suc', 'Deletion success.');
                                 res.redirect('/update_menu');
                             }
@@ -373,6 +384,7 @@ app.post('/update_menu',(req,res)=>{
                         res.redirect('/update_menu');
                     }
                     else{
+                        cachified_price[req.body.cuisine_id] = req.body.price;
                         req.flash('update_suc', 'New cuisine has been created.');
                         res.redirect('/update_menu');
                     }
@@ -391,6 +403,7 @@ app.post('/update_menu',(req,res)=>{
                         res.redirect('/update_menu');
                     }
                     else{
+                        cachified_price[req.body.cuisine_id] = req.body.price;
                         req.flash('update_suc', 'Update success.');
                         res.redirect('/update_menu');
                     }
@@ -422,76 +435,83 @@ app.get('/order',(req,res)=> {
                     order_history:orders,
                     order_err:req.flash('order_err')[0],
                     order_suc:req.flash('order_suc')[0],
+                    user:res.locals.user,
                 });
             }
         });
     }
 });
-
-// verify whether the order is valid (not contain any invalid cuisine id)
-function verify_cuisine_id(arr,i){
-    console.log(i);
-    if (i===0){
-        console.log('test point 1');
-        Cuisine.find({cuisine_id:arr[0]},(err,c_lst,count)=>{
-            return c_lst.length !== 0;
-        });
-    }
-    else{
-        console.log('test point 2');
-        Cuisine.find({cuisine_id:arr[i]},(err,c_lst,count)=>{
-            console.log('test point 5');
-            if(c_lst.length===0){
-                console.log('test point 3');
-                return false;
-            }
-            else{
-                console.log('test point 4');
-                return verify_cuisine_id(arr,i-1);
-            }
-        });
-    }
-}
 
 app.post('/order',(req,res)=>{
     User.find(res.locals.user,(err,user_lst,count)=>{
         const cur_user = user_lst[0];
-        const push_new_order_history = userOrderUpdate(cur_user);
-        push_new_order_history(req.body.order_detail);
-        cur_user.save((err,user,count)=>{
-            if(err){
-                console.log(err);
+        const arr = req.body.order_detail.split(' ');
+        let total_price = 0;
+        let valid_input = true;
+        arr.forEach(e=>{
+            if(cachified_price[e]===undefined){
+                // invalid order
+                valid_input = false;
             }
-            // order success
             else{
-                const arr = req.body.order_detail.split(' ');
-                // increment order counts for each cuisine
-                arr.forEach(e => {
-                    Cuisine.find({cuisine_id: e}, (err, c_lst, count) => {
-                        if(c_lst.length===0){
-                            req.flash('order_err',"Invalid cuisine id detected!");
+                total_price += cachified_price[e];
+            }
+        });
+        console.log('valid:',valid_input);
+        // order success
+        if(valid_input){
+            const push_new_order_history = userOrderUpdate(cur_user);
+            push_new_order_history(req.body.order_detail);
+            // generate order
+            ++order_id;
+            new Order({
+                username: res.locals.user.username,
+                order_id: order_id,
+                order_details:req.body.order_detail,
+                status:'not ready',
+                total_price: total_price,
+            }).save((err,order,count)=>{
+                if(err) {
+                    console.log(err);
+                }
+                else{
+                    cur_user.save((err,user,count)=>{
+                        if(err){
+                            console.log(err);
                         }
                         else{
-                            ++c_lst[0].total_orders;
-                            c_lst[0].save((err, c, count) => {
-                                if (err) {
-                                    console.log(err);
-                                }
-                            });
+                            res.locals.user.order_history = cur_user.order_history;
+                            req.flash("order_suc", "Order received! Your total price is "+total_price+" dollars.");
+                            res.redirect('/order');
                         }
-                    })
-                });
-                // push to global order Queue
-                Q.push(req.body.order_detail);
-                res.locals.user.order_history = cur_user.order_history;
-                req.flash("order_suc", "Order received!");
-                res.redirect('/order');
-            }
-        })
+                    });
+                }
+            });
+        }
+        // invalid input, report back to user
+        else{
+            req.flash('order_err',"ERROR: Invalid cuisine id detected!");
+            res.redirect('/order');
+        }
     });
 });
 
-
+app.get('/process_order',(req,res)=>{
+    if(res.locals.user===undefined){
+        res.redirect('/index');
+    }
+    else if(res.locals.user.user_type!=='admin'){
+        res.redirect('/index');
+    }
+    else {
+        Order.find({},(err,order_lst,count)=>{
+            res.render('process_order', {
+                user: res.locals.user,
+                orders: order_lst,
+            });
+        });
+    }
+});
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT);

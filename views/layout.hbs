@@ -4,10 +4,13 @@
     <header>
         {{#if user}}
             <div class="greeting_user">Hello {{user.username}}</div>
-            <a href="/order">Order</a>
+            <a href="/index">Home</a> |
+            <a href="/order">Order</a> |
             {{#if display_admin_links}}
                 <a href="/storage">Manage Ingredient Storage</a> |
                 <a href="/update_menu"> Update Menu</a> |
+                <a href="/process_order">Process Order</a> |
+                <a href="/manage_user">Manage User</a> |
             {{/if}}
         {{/if}}
         {{#unless user}}
