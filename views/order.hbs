@@ -1,0 +1,38 @@
+Please enter the corresponding cuisine id of the food (separate by a space) <br>
+{{#if order_err}}
+    <h2>{{order_err}}</h2> <br>
+{{/if}}
+{{#if order_suc}}
+    <h2>{{order_suc}}</h2> <br>
+{{/if}}
+<form method="POST" action="/order">
+    <textarea rows="4" cols="50" name="order_detail"></textarea>
+    <br>
+    <button class="bluebutton" type="submit"><h3>ORDER</h3></button>
+</form>
+<br>
+<br>
+Your recent 5 order history:
+<ul>
+{{#each order_history as |h|}}
+    <li>{{h}}</li>
+{{/each}}
+</ul>
+
+<div class="menu"><h2>MENU</h2></div>
+<table style="width:100%">
+    <tr>
+        <th><h4>Cuisine ID</h4></th>
+        <th><h4>Cuisine Name</h4></th>
+        <th><h4>Calories</h4></th>
+        <th><h4>Price($)</h4></th>
+    </tr>
+    {{#each menu as |m|}}
+        <tr>
+            <td><h4>{{m.cuisine_id}}</h4></td>
+            <td><h4>{{m.cuisine}}</h4></td>
+            <td><h4>{{m.calories}}</h4></td>
+            <td><h4>{{m.price}}</h4></td>
+        </tr>
+    {{/each}}
+</table>

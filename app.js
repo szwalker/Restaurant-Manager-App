@@ -9,13 +9,12 @@ const passport = require('passport');
 const Strategy = require('passport-local').Strategy;
 const flash = require('connect-flash');
 app.use(flash());
-
+Q = []; // a global Queue for orders
 // // const async = require('async');
 const mongoose = require('mongoose');
 const User = mongoose.model('User');
 const Cuisine = mongoose.model('Cuisine');
 const Ingredient = mongoose.model('Ingredient');
-const Order = mongoose.model('Order');
 const bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({extended: false}));
 // // default path
@@ -47,6 +46,17 @@ function updateCuisine(cuisine){
         else{
             c[property] = new_value;
         }
+    }
+}
+
+// A HOF that takes in a user and returns a function that can push new orders into its stringified order history array.
+// The function stores the resulting stringified array into the order history of the user.
+function userOrderUpdate(user){
+    const u = user;
+    const arr = JSON.parse(user.order_history);
+    return function(new_order){
+        arr.push(new_order);
+        u.order_history = JSON.stringify(arr);
     }
 }
 
@@ -95,7 +105,7 @@ passport.use('register', new Strategy({passReqToCallback: true}, (req, username,
                         username:username,
                         password:hash,
                         user_type:'consumer',
-                        order_history: [],
+                        order_history: '[]',
                     }).save((err,user,count)=>{
                         if (err){
                             console.log('error storing user!');
@@ -393,6 +403,94 @@ app.post('/update_menu',(req,res)=>{
         });
     }
 });
+
+app.get('/order',(req,res)=> {
+    if (res.locals.user === undefined) {
+        res.redirect('/index');
+    }
+    else {
+        Cuisine.find({}, (err, cuisine_lst, count) => {
+            if (err) {
+                console.log(err);
+            }
+            else {
+                const order_history = JSON.parse(res.locals.user.order_history);
+                const orders = order_history.slice(order_history.length-5,order_history.length);
+                orders.reverse();
+                res.render('order', {
+                    menu: cuisine_lst,
+                    order_history:orders,
+                    order_err:req.flash('order_err')[0],
+                    order_suc:req.flash('order_suc')[0],
+                });
+            }
+        });
+    }
+});
+
+// verify whether the order is valid (not contain any invalid cuisine id)
+function verify_cuisine_id(arr,i){
+    console.log(i);
+    if (i===0){
+        console.log('test point 1');
+        Cuisine.find({cuisine_id:arr[0]},(err,c_lst,count)=>{
+            return c_lst.length !== 0;
+        });
+    }
+    else{
+        console.log('test point 2');
+        Cuisine.find({cuisine_id:arr[i]},(err,c_lst,count)=>{
+            console.log('test point 5');
+            if(c_lst.length===0){
+                console.log('test point 3');
+                return false;
+            }
+            else{
+                console.log('test point 4');
+                return verify_cuisine_id(arr,i-1);
+            }
+        });
+    }
+}
+
+app.post('/order',(req,res)=>{
+    User.find(res.locals.user,(err,user_lst,count)=>{
+        const cur_user = user_lst[0];
+        const push_new_order_history = userOrderUpdate(cur_user);
+        push_new_order_history(req.body.order_detail);
+        cur_user.save((err,user,count)=>{
+            if(err){
+                console.log(err);
+            }
+            // order success
+            else{
+                const arr = req.body.order_detail.split(' ');
+                // increment order counts for each cuisine
+                arr.forEach(e => {
+                    Cuisine.find({cuisine_id: e}, (err, c_lst, count) => {
+                        if(c_lst.length===0){
+                            req.flash('order_err',"Invalid cuisine id detected!");
+                        }
+                        else{
+                            ++c_lst[0].total_orders;
+                            c_lst[0].save((err, c, count) => {
+                                if (err) {
+                                    console.log(err);
+                                }
+                            });
+                        }
+                    })
+                });
+                // push to global order Queue
+                Q.push(req.body.order_detail);
+                res.locals.user.order_history = cur_user.order_history;
+                req.flash("order_suc", "Order received!");
+                res.redirect('/order');
+            }
+        })
+    });
+});
+
 
 
 const PORT = process.env.PORT || 5000;

@@ -6,7 +6,7 @@ const User = new mongoose.Schema({
     username: String,// account username,
     password: {type: String, unique: true, required: true},// account password
     user_type: String,// user type: consumer or admin
-    order_history: [], // an array of references to previous orders object from this account
+    order_history: String, // an array of references to previous orders object from this account
 });
 
 const Cuisine = new mongoose.Schema({
