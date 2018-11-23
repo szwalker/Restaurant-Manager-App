@@ -8,7 +8,7 @@ Initial admin account detail:
 username: boss
 password: admin
 ```
-(Please do NOT modify any settings in the website, this site is purpose for _demo_ purpose.)
+(Please do NOT modify any settings in the website, this site is purely for _demo_ purpose.)
 
 ## Overview
 Operating and maintaining a restaurant is not a easy job, especially for new fast food restaurant owners. More than often, the restaurants owners would always run into the following questions: How do we keep track of current storage for each ingredients in real-time and keep customers informed of which choices is out of stock? How can we reduce customer waiting time to literally zero seconds within a few taps on finger and help customers to order their meal efficiently? What are my business performance data such as: today's income, customers most favorite orders, etc.
