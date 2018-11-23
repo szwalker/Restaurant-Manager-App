@@ -110,7 +110,7 @@ Integrate user authentication Using passport
 Flash Library
   * Display feedback back to the user during remove cuisine from menu, deleting accounts, register, login.
   * Please enter both invalid  and valid inputs on the following pages to trigger a flash feedback information. Input validation mechanism has been designed.
-  * see `/index`, `/update_menu`, `/manage_users`, `/process_order`, `/order` pages for flash detail.
+  * See `/index`, `/update_menu`, `/manage_users`, `/process_order`, `/order` pages for flash detail.
 
 JQuery Library
   * Perform animation effect on user validation
