@@ -103,6 +103,11 @@ div.menu{
     color:whitesmoke;
 }
 
+.redbutton{
+    background-color: red;
+    color:whitesmoke;
+}
+
 .greenbutton{
     background-color: #4CAF50;
     color: whitesmoke;
@@ -110,4 +115,19 @@ div.menu{
 
 div.process_order_instruction{
     text-align:center;
+}
+
+div.admin_button{
+    position:absolute;
+    margin:auto;
+    top: 450px;
+    left: 60%;
+
+}
+
+div.consumer_button{
+    position:absolute;
+    margin:auto;
+    top: 450px;
+    left: 30%;
 }

@@ -1,0 +1,30 @@
+<h1>Manage Users</h1>
+
+<p>This page allows you to manage users.</p>
+<p>You may change the user type of a valid account from consumer to admin or from admin to user.</p>
+
+<h3>WARNING:</h3> This is a sensitive operation.
+Changing the current account to another account type may result in unexpected outcomes.
+
+<div class="update_err">
+{{#if manage_err}}
+    <h3>{{manage_err}}</h3>
+{{/if}}
+</div>
+
+<div class="update_suc">
+{{#if manage_suc}}
+    <h3>{{manage_suc}}</h3>
+{{/if}}
+</div>
+
+<form method="POST" action="/manage_users">
+    Enter the username: <input type="text" name="username1"> <br>
+    Enter the username again: <input type="text" name="username2"> <br>
+    <div class="admin_button">
+        <button type="submit" class="redbutton" name="admin_button"><h2>Change to ADMIN type</h2></button>
+    </div>
+    <div class="consumer_button">
+        <button type="submit" class="greenbutton" name="consumer_button"><h2>Change to CONSUMER type</h2></button>
+    </div>
+</form>

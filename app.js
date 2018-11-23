@@ -435,6 +435,7 @@ app.get('/order',(req,res)=> {
                     order_err:req.flash('order_err')[0],
                     order_suc:req.flash('order_suc')[0],
                     user:res.locals.user,
+                    display_admin_links:res.locals.user.user_type === 'admin',
                 });
             }
         });
@@ -458,6 +459,16 @@ app.post('/order',(req,res)=>{
         });
         // order success
         if(valid_input){
+            arr.forEach(e=>{
+                Cuisine.find({cuisine_id:e},(err,c_lst,count)=>{
+                    ++c_lst[0].total_orders;
+                    c_lst[0].save((err,c,count)=>{
+                        if(err){
+                            console.log(err);
+                        }
+                    });
+                });
+            });
             const push_new_order_history = userOrderUpdate(cur_user);
             push_new_order_history(req.body.order_detail);
             // generate order
@@ -533,6 +544,61 @@ app.post('/process_order',(req,res)=>{
             });
         }
     });
+});
+
+app.get('/manage_users',(req,res)=>{
+    if(res.locals.user===undefined){
+        res.redirect('/index');
+    }
+    else if(res.locals.user.user_type!=='admin'){
+        res.redirect('/index');
+    }
+    else {
+        res.render('manage_users', {
+            manage_err: req.flash('manage_err')[0],
+            manage_suc: req.flash('manage_suc')[0],
+            display_admin_links:true,
+        });
+    }
+});
+
+app.post('/manage_users',(req,res)=>{
+    if(req.body.username1!==req.body.username2){
+        req.flash('manage_err',"Username do not match!");
+        res.redirect('/manage_users');
+    }
+    else{
+        const username = req.body.username1;
+        User.find({username:username},(err,user_lst,count)=>{
+            // user not found
+            if(user_lst.length===0){
+                req.flash('manage_err',"Account not found!");
+                res.redirect('/manage_users');
+            }
+            // user found
+            else{
+                const user = user_lst[0];
+                const change_to_admin_flag = (req.body.admin_button!==undefined);
+                console.log(req.body.admin_button);
+                if(change_to_admin_flag){
+                    user.user_type = 'admin';
+                }
+                else{
+                    user.user_type = 'consumer';
+                }
+                user.save((err,u,count)=>{
+                    if(err){
+                        req.flash('manage_err',err);
+                        res.redirect('/manage_users');
+                    }
+                    else{
+                        req.flash('manage_suc','Account '+user.username+' has been updated!');
+                        res.redirect('/manage_users');
+                    }
+                })
+            }
+        });
+    }
 });
 
 const PORT = process.env.PORT || 5000;

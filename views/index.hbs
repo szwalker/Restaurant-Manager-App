@@ -1,32 +1,36 @@
 <div class="restaurant_sign">
     <h1>WELCOME TO X RESTAURANT</h1>
 </div>
-<div class="register">
-    <h3>New to here? Please register.</h3>
-    <form method="POST" action="/register">
-        {{#if register_error}}
-            {{#each msg as |m|}}
-                <div class="error_msg">ERROR: {{m}}</div>
-            {{/each}}
-        {{/if}}
-        Username: <input type="text" name="username" placeholder="username"> <br>
-        Password: <input type="password" name="password" placeholder="password"> <br>
-        <button class="graybutton" type="submit"><h3>REGISTER</h3></button>
-    </form>
+<div class="register" id="register">
+    <h3>New to here?</h3>Please register.
+    {{#if register_error}}
+        {{#each msg as |m|}}
+            <br><div class="error_msg">ERROR: {{m}}<br></div>
+        {{/each}}
+    {{/if}}
+    <div id="register_dd">
+        <form method="POST" action="/register">
+            Username: <input type="text" name="username" placeholder="username"> <br>
+            Password: <input type="password" name="password" placeholder="password"> <br>
+            <button class="graybutton" type="submit"><h3>REGISTER</h3></button>
+        </form>
+    </div>
 </div>
 
-<div class="login">
-    <h3>Ready to Order? Login and order.</h3>
-    <form method="POST" action="/login">
-        {{#if login_error}}
-            {{#each msg as |m|}}
-                <div class="error_msg">ERROR: {{m}}</div>
-            {{/each}}
-        {{/if}}
-        Username: <input type="text" name="username" placeholder="username"> <br>
-        Password: <input type="password" name="password" placeholder="password"> <br>
-        <button class="graybutton" type="submit"><h3>LOGIN</h3></button>
-    </form>
+<div class="login" id="login">
+    <h3>Ready to Order?</h3>Login and order.
+    {{#if login_error}}
+        {{#each msg as |m|}}
+            <br><div class="error_msg">ERROR: {{m}}</div><br>
+        {{/each}}
+    {{/if}}
+    <div id="login_dd">
+        <form method="POST" action="/login">
+            Username: <input type="text" name="username" placeholder="username"> <br>
+            Password: <input type="password" name="password" placeholder="password"> <br>
+            <button class="graybutton" type="submit"><h3>LOGIN</h3></button>
+        </form>
+    </div>
 </div>
 
 <div class="index_menu">
@@ -49,3 +53,26 @@
     {{/each}}
 </table>
 </div>
+
+
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"
+        integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+        crossorigin="anonymous">
+</script>
+
+<script>
+    $(function(){
+        "use strict";
+        var $login_dd = $("#login_dd").hide();
+        var $register_dd = $("#register_dd").hide();
+
+        $('#login').click(function(){
+            $("#login_dd").show("slow");
+        });
+
+        $('#register').click(function(){
+            $("#register_dd").show('slow');
+        });
+
+    });
+</script>
