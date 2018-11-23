@@ -102,16 +102,16 @@ Orders MongoDB database setup code:
 * As administer user, I can check and change ingredients storage information.
 
 ### Research Topics
-(6 points) Integrate user authentication Using passport
+Integrate user authentication Using passport
   * Potential modules: passport for user authentication
   * This is required for the application to determine whether the user exists and the corresponding user type.
   * See `/index` for both register and login page.
 
-(1 point) Flash Library
+Flash Library
   * Display feedback back to the user during remove cuisine from menu, deleting accounts, register, login.
   * see `/index`, `/update_menu`, `/manage_users` pages for detail.
 
-(1 point) JQuery Library
+JQuery Library
   * Perform animation effect on user validation
   * Using a CSS preprocesser would give the user a better interactive feeling from the application.
   * See `/index` for both register and login button.
